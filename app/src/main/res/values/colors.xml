@@ -5,4 +5,5 @@
     <color name="colorAccent">#ff6d00</color>
     <color name="mainBackground">#63000000</color>
     <color name="transparent">#00000000</color>
+    <color name="splash">#eaeaea</color>
 </resources>

@@ -1,11 +1,13 @@
 package ru.nickant.ryunoske;
 
 
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -18,6 +20,8 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 public class AllAppsFragment extends Fragment {
@@ -28,6 +32,7 @@ public class AllAppsFragment extends Fragment {
     int numberOfColumns;
     boolean init = false;
     Context context = getActivity();
+    PackageManager pm;
 
 
     public AllAppsFragment() {
@@ -39,14 +44,14 @@ public class AllAppsFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_all_apps, container, false);
-
-        PackageManager pm = getActivity().getPackageManager();
+        pm = getActivity().getPackageManager();
         appsList = new ArrayList<AppInfo>();
 
         SharedPreferences sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
 
         Intent i = new Intent(Intent.ACTION_MAIN, null);
         i.addCategory(Intent.CATEGORY_LAUNCHER);
+
 
         List<ResolveInfo> allApps = pm.queryIntentActivities(i, 0);
         for(ResolveInfo ri:allApps) {
@@ -56,7 +61,17 @@ public class AllAppsFragment extends Fragment {
             app.icon = ri.activityInfo.loadIcon(pm);
             appsList.add(app);
         }
-        numberOfColumns = 5;
+
+        Collections.sort(appsList, new Comparator<AppInfo>()
+        {
+            @Override
+            public int compare(AppInfo text1, AppInfo text2)
+            {
+                return text1.getLabel().toString().compareToIgnoreCase(text2.getLabel().toString());
+            }
+        });
+
+        numberOfColumns = 4;
         recyclerView = (RecyclerView) view.findViewById(R.id.rv);
         recyclerView.setLayoutManager(new GridLayoutManager(this.getContext(), numberOfColumns));
         adapter = new RAdapter(getActivity());
@@ -68,8 +83,7 @@ public class AllAppsFragment extends Fragment {
     }
 
     public void update() {
-        PackageManager pm = getActivity().getPackageManager();
-        appsList = new ArrayList<AppInfo>();
+        pm = getActivity().getPackageManager();
 
         Intent i = new Intent(Intent.ACTION_MAIN, null);
         i.addCategory(Intent.CATEGORY_LAUNCHER);
@@ -81,15 +95,36 @@ public class AllAppsFragment extends Fragment {
             app.packageName = ri.activityInfo.packageName;
             app.icon = ri.activityInfo.loadIcon(pm);
             appsList.add(app);
+
         }
         recyclerView.getAdapter().notifyDataSetChanged();
+        Log.i("Refresh", "RecyclerView");
     }
 
     @Override
-    public void onResume() {
-        super.onResume();
-        if (init) update();
-        Log.d("onResume", "refreshed");
+    public void setUserVisibleHint(boolean isVisibleToUser) {
+        super.setUserVisibleHint(isVisibleToUser);
+        if (!isVisibleToUser && init) {
+            update();
+        }
+    }
+
+    public void swap(Object a, Object b) {
+        Object temp;
+        temp = a;
+        a = b;
+        b = temp;
+    }
+
+    public void sort() {
+        Collections.sort(appsList, new Comparator<AppInfo>()
+        {
+            @Override
+            public int compare(AppInfo text1, AppInfo text2)
+            {
+                return text1.getLabel().toString().compareToIgnoreCase(text2.getLabel().toString());
+            }
+        });
     }
 
 

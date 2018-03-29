@@ -24,6 +24,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.View;
 import android.view.Menu;
@@ -35,11 +36,9 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
-import xyz.danoz.recyclerviewfastscroller.vertical.VerticalRecyclerViewFastScroller;
-
 public class MainActivity extends AppCompatActivity {
 
-    ViewPager pager;
+    ru.nickant.ryunoske.VerticalViewPager pager;
 
     HomeFragment home;
     AllAppsFragment allaps;
@@ -98,8 +97,12 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
-    public void onBackPressed() {
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        if (Intent.ACTION_MAIN.equals(intent.getAction())) {
+            Log.i("MyLauncher", "onNewIntent: HOME Key");
 
+        }
     }
 
     @Override

@@ -4,9 +4,14 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
+import android.graphics.Color;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
+import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
+import android.view.ContextMenu;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -23,7 +28,6 @@ public class RAdapter extends RecyclerView.Adapter<RAdapter.ViewHolder> {
         public TextView textView;
         public ImageView img;
 
-
         //This is the subclass ViewHolder which simply
         //'holds the views' for us to show on each row
         public ViewHolder(View itemView) {
@@ -37,18 +41,36 @@ public class RAdapter extends RecyclerView.Adapter<RAdapter.ViewHolder> {
         }
 
         @Override
-            public void onClick (View v) {
-                int pos = getAdapterPosition();
-                Context context = v.getContext();
+        public void onClick (View v) {
+            int pos = getAdapterPosition();
+            Context context = v.getContext();
 
-                Intent launchIntent = context.getPackageManager().getLaunchIntentForPackage(appsList.get(pos).packageName.toString());
-                context.startActivity(launchIntent);
-                //Toast.makeText(v.getContext(), appsList.get(pos).label.toString(), Toast.LENGTH_LONG).show();
+            Intent launchIntent = context.getPackageManager().getLaunchIntentForPackage(appsList.get(pos).packageName.toString());
+            context.startActivity(launchIntent);
+            //Toast.makeText(v.getContext(), appsList.get(pos).label.toString(), Toast.LENGTH_LONG).show();
         }
 
         @Override
-        public boolean onLongClick(View view) {
+        public boolean onLongClick(final View view) {
+            final int pos = getAdapterPosition();
+            PopupMenu popup = new PopupMenu(view.getContext(), view);
+            popup.inflate(R.menu.menu_app);
+            popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+                @Override
+                public boolean onMenuItemClick(MenuItem item) {
+                    int id = item.getItemId();
 
+                    //noinspection SimplifiableIfStatement
+                    if (id == R.id.action_app_delete) {
+                        Uri packageURI = Uri.parse("package:"+appsList.get(pos).packageName.toString());
+                        Intent uninstallIntent = new Intent(Intent.ACTION_DELETE, packageURI);
+                        view.getContext().startActivity(uninstallIntent);
+                        return true;
+                    }
+                    return true;
+                }
+            });
+            popup.show();
             return false;
         }
     }
